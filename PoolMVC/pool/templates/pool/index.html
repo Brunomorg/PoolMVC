@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pool-Ausgleichsrechner</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #333; }
+        .card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px 20px; margin-bottom: 25px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select, button { padding: 8px 12px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="text"], input[type="number"], select { width: 100%; box-sizing: border-box; }
+        button { background-color: #1c7ed6; color: white; border: none; cursor: pointer; margin-top: 5px; }
+        button:hover { background-color: #1864ab; }
+        .ausgleich-list { list-style: none; padding-left: 0; }
+        .ausgleich-item { background: #e7f5ff; border-left: 4px solid #1c7ed6; margin: 8px 0; padding: 10px 15px; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #dee2e6; padding: 10px; text-align: left; }
+        th { background-color: #f1f3f5; }
+    </style>
+</head>
+<body>
+
+    <h1>Pool-Ausgleichsrechner</h1>
+
+    <!-- Add Person -->
+    <div class="card">
+        <h2>1. Person hinzufügen</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_person">
+            <div class="form-group">
+                <label for="person_name">Name der Person:</label>
+                <input type="text" id="person_name" name="person_name" placeholder="z. B. Alex" required>
+            </div>
+            <button type="submit">Person anlegen</button>
+        </form>
+    </div>
+
+    <!-- Add to Pool -->
+    <div class="card">
+        <h2>2. Ausgabe eintragen</h2>
+        {% if personen %}
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_ausgabe">
+
+                <div class="form-group">
+                    <label for="person_id">Wer hat gezahlt?</label>
+                    <select id="person_id" name="person_id" required>
+                        <option value="">-- Person auswählen --</option>
+                        {% for p in personen %}
+                            <option value="{{ p.id }}">{{ p.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="betrag">Betrag (€):</label>
+                    <input type="number" id="betrag" name="betrag" step="0.01" min="0.01" placeholder="0.00" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="beschreibung">Wofür? (Beschreibung):</label>
+                    <input type="text" id="beschreibung" name="beschreibung" placeholder="z. B. Pool-Chlor" required>
+                </div>
+
+                <button type="submit">Ausgabe speichern</button>
+            </form>
+        {% else %}
+            <p><em>Bitte lege zuerst mindestens eine Person an.</em></p>
+        {% endif %}
+    </div>
+
+    <!-- Overview -->
+    <div class="card">
+        <h2>Übersicht</h2>
+        <p><strong>Gesamtsumme aller Ausgaben:</strong> {{ gesamtsumme|floatformat:2 }} €</p>
+        <p><strong>Pro-Kopf-Soll:</strong> {{ pro_kopf|floatformat:2 }} €</p>
+    </div>
+
+    <div class="card">
+        <h2>Ausgleichszahlungen</h2>
+        {% if ausgleich_liste %}
+            <ul class="ausgleich-list">
+                {% for eintrag in ausgleich_liste %}
+                    <li class="ausgleich-item">
+                        <strong>{{ eintrag.von }}</strong> zahlt <strong>{{ eintrag.betrag }} €</strong> an <strong>{{ eintrag.an }}</strong>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Es sind keine Ausgleichszahlungen nötig.</p>
+        {% endif %}
+    </div>
+
+    <!-- Table -->
+    <h2>Bisherige Ausgaben</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Person</th>
+                <th>Betrag</th>
+                <th>Beschreibung</th>
+                <th>Datum</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ausgabe in ausgaben %}
+                <tr>
+                    <td>{{ ausgabe.person.name }}</td>
+                    <td>{{ ausgabe.betrag }} €</td>
+                    <td>{{ ausgabe.beschreibung }}</td>
+                    <td>{{ ausgabe.datum|date:"d.m.Y H:i" }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">Bisher wurden noch keine Ausgaben eingetragen.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

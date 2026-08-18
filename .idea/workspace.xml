@@ -5,25 +5,40 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="23d2f9e9-4008-4091-a401-2f20c95381e9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/PoolMVC.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PoolMVC/pool/admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PoolMVC/pool/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PoolMVC/pool/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PoolMVC/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/PoolMVC/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PoolMVC/model/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/PoolMVC/pool/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PoolMVC/model/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PoolMVC/model/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/PoolMVC/pool/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PoolMVC/model/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/PoolMVC/pool/migrations/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PoolMVC/model/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PoolMVC/model/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/PoolMVC/pool/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PoolMVC/model/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PoolMVC/mysite/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/PoolMVC/mysite/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PoolMVC/mysite/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/PoolMVC/mysite/urls.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 1
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectId" id="3I08R93waOXqsj8fRxScePSgqmU" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -31,13 +46,20 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Bruno\PycharmProjects\PoolMVC\PoolMVC\model\templates\model" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

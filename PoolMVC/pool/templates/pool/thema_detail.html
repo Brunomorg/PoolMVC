@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Pool-Verwaltung</title>
+    <!-- CSS-Datei einbinden -->
+    <link rel="stylesheet" href="{% static 'pool/css/style.css' %}">
+</head>
+<body>
+
+    <h1>Pool-Ausgleichsrechner</h1>
+
+    <!-- Add Person -->
+    <div class="card">
+    <h2>1. Person hinzufügen</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_person">
+
+        <div class="form-group">
+            <label for="person_name">Name der Person</label>
+            <input type="text" id="person_name" name="person_name" placeholder="z. B. Alex" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Person anlegen</button>
+    </form>
+</div>
+
+    <!-- Add to Pool -->
+<div class="card">
+    <h2>2. Ausgabe eintragen</h2>
+    {% if personen %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_ausgabe">
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="person_id">Wer hat gezahlt?</label>
+                    <select id="person_id" name="person_id" required>
+                        <option value="">-- Person auswählen --</option>
+                        {% for p in personen %}
+                            <option value="{{ p.id }}">{{ p.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="betrag">Betrag (€)</label>
+                    <input type="number" id="betrag" name="betrag" step="0.01" min="0.01" placeholder="0.00" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="beschreibung">Wofür? (Beschreibung)</label>
+                <input type="text" id="beschreibung" name="beschreibung" placeholder="z. B. Pool-Chlor" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Ausgabe speichern</button>
+        </form>
+    {% else %}
+        <p style="color: #868e96; margin: 0;"><em>Bitte lege zuerst mindestens eine Person an.</em></p>
+    {% endif %}
+</div>
+    <!-- Overview -->
+   <!-- ÜBERSICHT -->
+<div class="card">
+    <h2>Übersicht</h2>
+    <div class="stats-grid">
+        <!-- Gesamtsumme -->
+        <div class="stat-card">
+            <div class="stat-label">Gesamtsumme aller Ausgaben</div>
+            <div class="stat-value">{{ gesamtsumme|floatformat:2 }} €</div>
+        </div>
+
+        <!-- Pro-Kopf-Soll -->
+        <div class="stat-card accent">
+            <div class="stat-label">Pro-Kopf-Soll</div>
+            <div class="stat-value">{{ pro_kopf|floatformat:2 }} €</div>
+        </div>
+    </div>
+</div>
+
+    <!-- Table -->
+    <h2>Bisherige Ausgaben</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Person</th>
+            <th>Betrag</th>
+            <th>Beschreibung</th>
+            <th>Datum</th>
+            <th>Aktion</th> <!-- Neue Spalte -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for ausgabe in ausgaben %}
+            <tr>
+                <td>{{ ausgabe.person.name }}</td>
+                <td>{{ ausgabe.betrag }} €</td>
+                <td>{{ ausgabe.beschreibung }}</td>
+                <td>{{ ausgabe.datum|date:"d.m.Y H:i" }}</td>
+                <td>
+    <div class="action-group">
+        <!-- Bearbeiten-Link -->
+        <a href="{% url 'ausgabe_bearbeiten' ausgabe.id %}" class="btn btn-warning btn-sm">
+            Bearbeiten
+        </a>
+
+        <!-- Löschen-Formular -->
+        <form method="POST" class="form-inline" onsubmit="return confirm('Möchtest du diese Ausgabe wirklich löschen?');">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete_ausgabe">
+            <input type="hidden" name="ausgabe_id" value="{{ ausgabe.id }}">
+            <button type="submit" class="btn btn-danger btn-sm">
+                Löschen
+            </button>
+        </form>
+    </div>
+</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">Bisher wurden noch keine Ausgaben eingetragen.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="card">
+    <h2>Ausgaben pro Person</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Person</th>
+                <th>Insgesamt ausgegeben</th>
+                <th>Differenz zum Pro-Kopf-Soll</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in personen_übersicht %}
+                <tr>
+                    <td><strong>{{ p.name }}</strong></td>
+                    <td>{{ p.ausgegeben|floatformat:2 }} €</td>
+                    <td>
+                        {% if p.saldo > 0.01 %}
+                            <span class="saldo-positiv">+{{ p.saldo|floatformat:2 }} € (bekommt Geld)</span>
+                        {% elif p.saldo < -0.01 %}
+                            <span class="saldo-negativ">{{ p.saldo|floatformat:2 }} € (schuldet Geld)</span>
+                        {% else %}
+                            <span>0.00 € (ausgeglichen)</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">Noch keine Personen vorhanden.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- KORREKTUR/AUSGLEICH: Wer zahlt wem wie viel -->
+<div class="card">
+    <h2>Wer schuldet wem wie viel?</h2>
+    {% if ausgleich_liste %}
+        <ul class="ausgleich-list">
+            {% for eintrag in ausgleich_liste %}
+                <li class="ausgleich-item">
+                    <span><strong>{{ eintrag.von }}</strong> zahlt <strong>{{ eintrag.betrag }} €</strong> an <strong>{{ eintrag.an }}</strong></span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p style="color: #495057; margin: 0;">Es sind keine Ausgleichszahlungen notwendig (alle Ausgaben sind ausgeglichen).</p>
+    {% endif %}
+</div>
+
+</body>
+</html>

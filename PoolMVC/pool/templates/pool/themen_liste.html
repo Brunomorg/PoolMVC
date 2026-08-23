@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Pool-Verwaltung</title>
+    <!-- CSS-Datei einbinden -->
+    <link rel="stylesheet" href="{% static 'pool/css/style.css' %}">
+</head>
+<body>
+<h1>Themenübersicht</h1>
+
+<!-- Formular zum Anlegen -->
+<form method="POST" style="margin-bottom: 20px;">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="add_thema">
+    <input type="text" name="titel" placeholder="Neues Thema (z.B. Essen)" required>
+    <button type="submit">Thema erstellen</button>
+</form>
+
+<!-- Liste aller Themen mit Löschen-Buttons -->
+<ul>
+    {% for t in themen %}
+        <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+            <a href="{% url 'thema_detail' t.id %}"><strong>{{ t.titel }}</strong></a>
+            <span>(Erstellt am {{ t.erstellt_am|date:"d.m.Y" }})</span>
+
+            <!-- Löschen-Formular -->
+            <form method="POST" style="display: inline;" onsubmit="return confirm('Möchtest du dieses Thema und alle seine Ausgaben wirklich löschen?');">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete_thema">
+                <input type="hidden" name="thema_id" value="{{ t.id }}">
+                <button type="submit" style="background-color: #e03131; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">
+                    Löschen
+                </button>
+            </form>
+        </li>
+    {% empty %}
+        <li>Noch keine Themen vorhanden.</li>
+    {% endfor %}
+</ul>
+</ul>
+</body>
+</html>

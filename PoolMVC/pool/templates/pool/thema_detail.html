@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <h1>Pool-Ausgleichsrechner</h1>
+    <h1>{{ thema.titel }}</h1>
 
     <!-- Add Person -->
     <div class="card">
@@ -54,7 +54,7 @@
 
             <div class="form-group">
                 <label for="beschreibung">Wofür? (Beschreibung)</label>
-                <input type="text" id="beschreibung" name="beschreibung" placeholder="z. B. Pool-Chlor" required>
+                <input type="text" id="beschreibung" name="beschreibung" placeholder="Freibad-Pommes" required>
             </div>
 
             <button type="submit" class="btn btn-primary">Ausgabe speichern</button>
@@ -64,14 +64,13 @@
     {% endif %}
 </div>
     <!-- Overview -->
-   <!-- ÜBERSICHT -->
 <div class="card">
     <h2>Übersicht</h2>
     <div class="stats-grid">
         <!-- Gesamtsumme -->
         <div class="stat-card">
             <div class="stat-label">Gesamtsumme aller Ausgaben</div>
-            <div class="stat-value">{{ gesamtsumme|floatformat:2 }} €</div>
+            <div class="stat-value">{{ gesamtausgaben|floatformat:2 }} €</div>
         </div>
 
         <!-- Pro-Kopf-Soll -->
@@ -109,7 +108,7 @@
         </a>
 
         <!-- Löschen-Formular -->
-        <form method="POST" class="form-inline" onsubmit="return confirm('Möchtest du diese Ausgabe wirklich löschen?');">
+        <form method="POST" class="form-inline">
             {% csrf_token %}
             <input type="hidden" name="action" value="delete_ausgabe">
             <input type="hidden" name="ausgabe_id" value="{{ ausgabe.id }}">
@@ -128,6 +127,7 @@
     </tbody>
 </table>
 
+<!-- TABELLE: Ausgaben pro Person mit Löschen-Funktion -->
 <div class="card">
     <h2>Ausgaben pro Person</h2>
     <table>
@@ -136,6 +136,7 @@
                 <th>Person</th>
                 <th>Insgesamt ausgegeben</th>
                 <th>Differenz zum Pro-Kopf-Soll</th>
+                <th style="text-align: right;">Aktion</th>
             </tr>
         </thead>
         <tbody>
@@ -152,10 +153,18 @@
                             <span>0.00 € (ausgeglichen)</span>
                         {% endif %}
                     </td>
+                    <td style="text-align: right;">
+                        <form method="POST" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete_person">
+                            <input type="hidden" name="person_id" value="{{ p.id }}">
+                            <button type="submit" class="btn btn-danger-outline btn-sm">Entfernen</button>
+                        </form>
+                    </td>
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="3">Noch keine Personen vorhanden.</td>
+                    <td colspan="4">Noch keine Personen vorhanden.</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -169,13 +178,19 @@
         <ul class="ausgleich-list">
             {% for eintrag in ausgleich_liste %}
                 <li class="ausgleich-item">
-                    <span><strong>{{ eintrag.von }}</strong> zahlt <strong>{{ eintrag.betrag }} €</strong> an <strong>{{ eintrag.an }}</strong></span>
+                    <span><strong>{{ eintrag.von }}</strong> schuldet <strong>{{ eintrag.an }}</strong> <strong>{{ eintrag.betrag }}€</strong></span>
                 </li>
             {% endfor %}
         </ul>
     {% else %}
         <p style="color: #495057; margin: 0;">Es sind keine Ausgleichszahlungen notwendig (alle Ausgaben sind ausgeglichen).</p>
     {% endif %}
+</div>
+
+<div style="margin-bottom: 24px;">
+    <a href="{% url 'themen_liste' %}" class="btn btn-primary btn-lg">
+        &larr; Zurück zur Übersicht
+    </a>
 </div>
 
 </body>

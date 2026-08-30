@@ -37,7 +37,13 @@ def thema_detail(request, thema_id):
         if action == 'add_person':
             name = request.POST.get('person_name', '').strip()
             if name:
-                Person.objects.get_or_create(name=name)
+                Person.objects.get_or_create(thema=thema, name=name)
+            return redirect('thema_detail', thema_id=thema.id)
+
+        elif action == 'delete_person':
+            person_id = request.POST.get('person_id')
+            if person_id:
+                Person.objects.filter(id=person_id, thema=thema).delete()
             return redirect('thema_detail', thema_id=thema.id)
 
         elif action == 'add_ausgabe':
@@ -46,7 +52,7 @@ def thema_detail(request, thema_id):
             beschreibung = request.POST.get('beschreibung', '').strip()
 
             if person_id and betrag:
-                person = Person.objects.get(id=person_id)
+                person = Person.objects.get(id=person_id, thema=thema)
                 Ausgabe.objects.create(
                     thema=thema,
                     person=person,
@@ -61,85 +67,67 @@ def thema_detail(request, thema_id):
                 Ausgabe.objects.filter(id=ausgabe_id, thema=thema).delete()
             return redirect('thema_detail', thema_id=thema.id)
 
-    # --- BERECHNUNG & ANZEIGE (GET) ---
+    # --- ANZEIGE & BERECHNUNG (GET) ---
+    personen = Person.objects.filter(thema=thema)
     ausgaben = Ausgabe.objects.filter(thema=thema).select_related('person')
-    personen = Person.objects.all()
 
-    gesamtsumme = ausgaben.aggregate(Sum('betrag'))['betrag__sum'] or 0
+    # 1. Gesamtausgaben sicher als float konvertieren
+    summe = ausgaben.aggregate(Sum('betrag'))['betrag__sum']
+    Gesamtsumme = float(summe) if summe is not None else 0.0
+
+    # 2. Pro-Kopf-Betrag berechnen
     anzahl_personen = personen.count()
-    pro_kopf = gesamtsumme / anzahl_personen if anzahl_personen > 0 else 0
+    pro_kopf = (Gesamtsumme / anzahl_personen) if anzahl_personen > 0 else 0.0
 
-    # 1. Ausgaben pro Person berechnen
+    # 3. Personen-Übersicht berechnen
     personen_übersicht = []
-    schuldner = []
-    glaeubiger = []
-
     for person in personen:
-        einzahlung = ausgaben.filter(person=person).aggregate(Sum('betrag'))['betrag__sum'] or 0
-        saldo = float(einzahlung - pro_kopf)
+        p_summe = ausgaben.filter(person=person).aggregate(Sum('betrag'))['betrag__sum']
+
+        # KORREKTUR: p_summe direkt in float umwandeln
+        einzahlung = float(p_summe) if p_summe is not None else 0.0
+
+        # Nun rechnen float - float (funktioniert ohne TypeError)
+        saldo = einzahlung - pro_kopf
 
         personen_übersicht.append({
+            'id': person.id,
             'name': person.name,
             'ausgegeben': einzahlung,
             'saldo': saldo
         })
 
-        if saldo < -0.01:
-            schuldner.append({'person': person, 'betrag': abs(saldo)})
-        elif saldo > 0.01:
-            glaeubiger.append({'person': person, 'betrag': saldo})
-
-    # 2. Schulden-Verrechnung (Wer zahlt an wen)
-    ausgleich_liste = []
-    i, j = 0, 0
-    while i < len(schuldner) and j < len(glaeubiger):
-        s = schuldner[i]
-        g = glaeubiger[j]
-        zahlungs_betrag = min(s['betrag'], g['betrag'])
-
-        ausgleich_liste.append({
-            'von': s['person'].name,
-            'an': g['person'].name,
-            'betrag': round(zahlungs_betrag, 2)
-        })
-
-        s['betrag'] -= zahlungs_betrag
-        g['betrag'] -= zahlungs_betrag
-        if s['betrag'] < 0.01: i += 1
-        if g['betrag'] < 0.01: j += 1
-
-    context = {
+    return render(request, 'pool/thema_detail.html', {
         'thema': thema,
         'personen': personen,
         'ausgaben': ausgaben,
-        'gesamtsumme': gesamtsumme,
-        'pro_kopf': round(pro_kopf, 2),
+        'gesamtausgaben': Gesamtsumme,
+        'pro_kopf': pro_kopf,
         'personen_übersicht': personen_übersicht,
-        'ausgleich_liste': ausgleich_liste,
-    }
-    return render(request, 'pool/thema_detail.html', context)
+    })
 
 
 def ausgabe_bearbeiten(request, ausgabe_id):
     ausgabe = get_object_or_404(Ausgabe, id=ausgabe_id)
+    thema = ausgabe.thema  # <-- Das Thema aus der Ausgabe auslesen
 
     if request.method == 'POST':
         person_id = request.POST.get('person_id')
         betrag = request.POST.get('betrag')
         beschreibung = request.POST.get('beschreibung', '').strip()
 
-        if person_id and betrag:
-            ausgabe.person = Person.objects.get(id=person_id)
+        if person_id and betrag and beschreibung:
+            ausgabe.person_id = person_id
             ausgabe.betrag = betrag
             ausgabe.beschreibung = beschreibung
-            ausgabe.save()  # Aktualisiert den bestehenden Eintrag in der Datenbank
+            ausgabe.save()
+            return redirect('thema_detail', thema_id=thema.id)
 
-            # Leitet zurück zur Detailansicht des jeweiligen Themas
-            return redirect('thema_detail', thema_id=ausgabe.thema.id)
+    personen = Person.objects.filter(thema=thema)
 
-    personen = Person.objects.all()
-    context = {
+    # WICHTIG: 'thema' muss im Context-Dictionary enthalten sein!
+    return render(request, 'pool/ausgabe_bearbeiten.html', {
         'ausgabe': ausgabe,
+        'thema': thema,
         'personen': personen,
-    }
-    return render(request, 'pool/ausgabe_bearbeiten.html', context)
+    })

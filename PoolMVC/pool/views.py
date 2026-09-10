@@ -34,60 +34,60 @@ def thema_detail(request, thema_id):
     if request.method == 'POST':
         action = request.POST.get('action')
 
-        if action == 'add_person':
-            name = request.POST.get('person_name', '').strip()
-            if name:
-                Person.objects.get_or_create(thema=thema, name=name)
-            return redirect('thema_detail', thema_id=thema.id)
+        # Refactoring mit Pattern Matching (Match/Case)
+        match action:
+            case 'add_person':
+                name = request.POST.get('person_name', '').strip()
+                if name:
+                    Person.objects.get_or_create(thema=thema, name=name)
 
-        elif action == 'delete_person':
-            person_id = request.POST.get('person_id')
-            if person_id:
-                Person.objects.filter(id=person_id, thema=thema).delete()
-            return redirect('thema_detail', thema_id=thema.id)
+            case 'delete_person':
+                person_id = request.POST.get('person_id')
+                if person_id:
+                    Person.objects.filter(id=person_id, thema=thema).delete()
 
-        elif action == 'add_ausgabe':
-            person_id = request.POST.get('person_id')
-            betrag = request.POST.get('betrag')
-            beschreibung = request.POST.get('beschreibung', '').strip()
+            case 'add_ausgabe':
+                person_id = request.POST.get('person_id')
+                betrag = request.POST.get('betrag')
+                beschreibung = request.POST.get('beschreibung', '').strip()
 
-            if person_id and betrag:
-                person = Person.objects.get(id=person_id, thema=thema)
-                Ausgabe.objects.create(
-                    thema=thema,
-                    person=person,
-                    betrag=betrag,
-                    beschreibung=beschreibung
-                )
-            return redirect('thema_detail', thema_id=thema.id)
+                if person_id and betrag:
+                    person = Person.objects.get(id=person_id, thema=thema)
+                    Ausgabe.objects.create(
+                        thema=thema,
+                        person=person,
+                        betrag=betrag,
+                        beschreibung=beschreibung
+                    )
 
-        elif action == 'delete_ausgabe':
-            ausgabe_id = request.POST.get('ausgabe_id')
-            if ausgabe_id:
-                Ausgabe.objects.filter(id=ausgabe_id, thema=thema).delete()
-            return redirect('thema_detail', thema_id=thema.id)
+            case 'delete_ausgabe':
+                ausgabe_id = request.POST.get('ausgabe_id')
+                if ausgabe_id:
+                    Ausgabe.objects.filter(id=ausgabe_id, thema=thema).delete()
+
+            case _:
+                # Optional: Fallback für unbekannte Aktionen
+                pass
+
+        return redirect('thema_detail', thema_id=thema.id)
 
     # --- ANZEIGE & BERECHNUNG (GET) ---
     personen = Person.objects.filter(thema=thema)
     ausgaben = Ausgabe.objects.filter(thema=thema).select_related('person')
 
-    # 1. Gesamtausgaben sicher als float konvertieren
+    # 1. Gesamtausgaben sicher berechnen
     summe = ausgaben.aggregate(Sum('betrag'))['betrag__sum']
-    Gesamtsumme = float(summe) if summe is not None else 0.0
+    gesamtausgaben = float(summe) if summe is not None else 0.0
 
     # 2. Pro-Kopf-Betrag berechnen
     anzahl_personen = personen.count()
-    pro_kopf = (Gesamtsumme / anzahl_personen) if anzahl_personen > 0 else 0.0
+    pro_kopf = (gesamtausgaben / anzahl_personen) if anzahl_personen > 0 else 0.0
 
     # 3. Personen-Übersicht berechnen
     personen_übersicht = []
     for person in personen:
         p_summe = ausgaben.filter(person=person).aggregate(Sum('betrag'))['betrag__sum']
-
-        # KORREKTUR: p_summe direkt in float umwandeln
         einzahlung = float(p_summe) if p_summe is not None else 0.0
-
-        # Nun rechnen float - float (funktioniert ohne TypeError)
         saldo = einzahlung - pro_kopf
 
         personen_übersicht.append({
@@ -101,7 +101,7 @@ def thema_detail(request, thema_id):
         'thema': thema,
         'personen': personen,
         'ausgaben': ausgaben,
-        'gesamtausgaben': Gesamtsumme,
+        'gesamtausgaben': gesamtausgaben,
         'pro_kopf': pro_kopf,
         'personen_übersicht': personen_übersicht,
     })

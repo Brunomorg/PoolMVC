@@ -1,7 +1,7 @@
 from django import forms
 from .models import Thema, Person, Ausgabe
 
-# Formular zum Erstellen und Bearbeiten eines Themas.
+# Form to create a new Thema (topic).
 class ThemaForm(forms.ModelForm):
     class Meta:
         model = Thema
@@ -13,7 +13,7 @@ class ThemaForm(forms.ModelForm):
             })
         }
 
-# Formular zum Anlegen einer Person, die zu einem Thema gehört.
+# Form to create a new Person associated with a Thema.
 class PersonForm(forms.ModelForm):
     class Meta:
         model = Person
@@ -25,7 +25,7 @@ class PersonForm(forms.ModelForm):
             })
         }
 
-# Formular zum Erfassen einer Ausgabe und Auswahl der beteiligten Person.
+# Form to create a new Spending associated with a Thema and Person.
 class AusgabeForm(forms.ModelForm):
     class Meta:
         model = Ausgabe
@@ -43,7 +43,7 @@ class AusgabeForm(forms.ModelForm):
             }),
         }
 
-    # Filtert die Auswahl der Personen auf diejenigen des aktuellen Themas.
+    # Filtering Persons in the form
     def __init__(self, *args, **kwargs):
         thema = kwargs.pop('thema', None)
         super().__init__(*args, **kwargs)

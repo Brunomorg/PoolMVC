@@ -3,7 +3,7 @@ from django.db.models import Sum
 from .models import Thema, Person, Ausgabe
 from .forms import ThemaForm, PersonForm, AusgabeForm
 
-# Zeigt die Übersicht aller Themen an und verarbeitet das Anlegen eines neuen Themas.
+# Topic Displaying and creating new Topics
 def themen_liste(request):
     if request.method == 'POST':
         form = ThemaForm(request.POST)
@@ -20,7 +20,7 @@ def themen_liste(request):
     })
 
 
-# Zeigt die Details eines einzelnen Themas an und verarbeitet das Hinzufügen bzw. Entfernen von Personen und Ausgaben.
+# Show Details of a Topic, including its Persons and Spendings, and allow adding new Persons and Spendings.
 def thema_detail(request, thema_id):
     thema = get_object_or_404(Thema, id=thema_id)
 
@@ -93,7 +93,7 @@ def thema_detail(request, thema_id):
     })
 
 
-# Ermöglicht das Bearbeiten einer bestehenden Ausgabe und speichert die Änderungen wieder im Thema.
+# Change existing Spending
 def ausgabe_bearbeiten(request, ausgabe_id):
     ausgabe = get_object_or_404(Ausgabe, id=ausgabe_id)
     thema = ausgabe.thema

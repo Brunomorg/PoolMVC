@@ -20,7 +20,7 @@ def themen_liste(request):
     })
 
 
-# Show Details of a Topic, including its Persons and Spendings, and allow adding new Persons and Spendings.
+# Show Details of a Topic
 def thema_detail(request, thema_id):
     thema = get_object_or_404(Thema, id=thema_id)
 

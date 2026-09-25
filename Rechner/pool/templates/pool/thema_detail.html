@@ -70,6 +70,7 @@
 </div>
 
     <!-- Table -->
+     <div class="card">
     <h2>Bisherige Ausgaben</h2>
 <table>
     <thead>
@@ -95,7 +96,7 @@
             Bearbeiten
         </a>
 
-        <!-- Löschen-Formular -->
+        <!-- Delete form -->
         <form method="POST" class="form-inline">
             {% csrf_token %}
             <input type="hidden" name="action" value="delete_ausgabe">
@@ -114,8 +115,8 @@
         {% endfor %}
     </tbody>
 </table>
-
-<!-- TABELLE: Ausgaben pro Person mit Löschen-Funktion -->
+</div>
+<!-- TABLE: Expenses per person with delete functionality -->
 <div class="card">
     <h2>Ausgaben pro Person</h2>
     <table>
@@ -159,7 +160,7 @@
     </table>
 </div>
 
-<!-- KORREKTUR/AUSGLEICH: Wer zahlt wem wie viel -->
+<!-- ADJUSTMENT: Who pays whom and how much -->
 <div class="card">
     <h2>Wer schuldet wem wie viel?</h2>
     {% if ausgleich_liste %}

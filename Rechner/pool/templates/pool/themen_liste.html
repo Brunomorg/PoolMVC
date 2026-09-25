@@ -11,7 +11,7 @@
 
     <h1>Projektauswahl</h1>
 
-    <!-- FORMULAR: Neues Thema erstellen -->
+    <!-- FORM: Create a new topic -->
     <div class="card">
         <h2>Neues Thema anlegen</h2>
         <form method="POST">
@@ -27,7 +27,7 @@
         </form>
     </div>
 
-    <!-- KARTEN-GRID: Vorhandene Themen -->
+    <!-- CARD GRID: Existing topics -->
     <div class="card">
         <h2>Vorhandene Themen</h2>
 
@@ -47,7 +47,7 @@
                 <div class="topic-actions">
                     <span class="btn btn-primary">Öffnen &rarr;</span>
 
-                    <!-- Formular zum Löschen (verhindert das Öffnen der Karte beim Klick) -->
+                    <!-- Delete form (prevents the card from opening when clicked) -->
                     <form method="POST"
                           class="form-inline"
                           onclick="event.stopPropagation();"

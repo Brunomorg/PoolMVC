@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ausgabe bearbeiten — {{ thema.titel }}</title>
+    <title>Ausgabe bearbeiten — {{ topic.titel }}</title>
     <link rel="stylesheet" href="{% static 'pool/css/style.css' %}">
 </head>
 <body>
@@ -34,12 +34,12 @@
 
             <div style="margin-top: 15px;">
                 <button type="submit" class="btn btn-primary">Speichern</button>
-                <a href="{% url 'thema_detail' thema.id %}" class="btn btn-cancel">Abbrechen</a>
+                <a href="{% url 'topic_detail' topic.id %}" class="btn btn-cancel">Abbrechen</a>
             </div>
         </form>
     </div>
  <div style="margin-bottom: 24px;">
-        <a href="{% url 'thema_detail' thema.id %}" class="btn btn-primary btn-lg">
+        <a href="{% url 'topic_detail' topic.id %}" class="btn btn-primary btn-lg">
             &larr; Zurück zum Thema
         </a>
     </div>

@@ -27,22 +27,22 @@
     <!-- Add to Pool -->
 <div class="card">
     <h2>2. Ausgabe eintragen</h2>
-    {% if personen %}
+    {% if people %}
         <form method="post">
             {% csrf_token %}
-            <input type="hidden" name="action" value="add_ausgabe">
+            <input type="hidden" name="action" value="add_expense">
             
             <div class="form-group">
                 <label>Person:</label>
-                {{ ausgabe_form.person }}
+                {{ expense_form.person }}
             </div>
             <div class="form-group">
                 <label>Betrag (€):</label>
-                {{ ausgabe_form.betrag }}
+                {{ expense_form.betrag }}
             </div>
             <div class="form-group">
                 <label>Beschreibung:</label>
-                {{ ausgabe_form.beschreibung }}
+                {{ expense_form.beschreibung }}
             </div>
             
             <button type="submit" class="btn btn-primary">Ausgabe eintragen</button>
@@ -58,13 +58,13 @@
         <!-- Gesamtsumme -->
         <div class="stat-card">
             <div class="stat-label">Gesamtsumme aller Ausgaben</div>
-            <div class="stat-value">{{ gesamtausgaben|floatformat:2 }} €</div>
+            <div class="stat-value">{{ total_expenses|floatformat:2 }} €</div>
         </div>
 
         <!-- Pro-Kopf-Soll -->
         <div class="stat-card accent">
             <div class="stat-label">Pro-Kopf-Soll</div>
-            <div class="stat-value">{{ pro_kopf|floatformat:2 }} €</div>
+            <div class="stat-value">{{ per_person_share|floatformat:2 }} €</div>
         </div>
     </div>
 </div>
@@ -83,24 +83,24 @@
         </tr>
     </thead>
     <tbody>
-        {% for ausgabe in ausgaben %}
+        {% for expense in expenses %}
             <tr>
-                <td>{{ ausgabe.person.name }}</td>
-                <td>{{ ausgabe.betrag }} €</td>
-                <td>{{ ausgabe.beschreibung }}</td>
-                <td>{{ ausgabe.datum|date:"d.m.Y H:i" }}</td>
+                <td>{{ expense.person.name }}</td>
+                <td>{{ expense.betrag }} €</td>
+                <td>{{ expense.beschreibung }}</td>
+                <td>{{ expense.erstellt_am|date:"d.m.Y H:i" }}</td>
                 <td>
     <div class="action-group">
         <!-- Bearbeiten-Link -->
-        <a href="{% url 'ausgabe_bearbeiten' ausgabe.id %}" class="btn btn-warning btn-sm">
+        <a href="{% url 'expense_edit' expense.id %}" class="btn btn-warning btn-sm">
             Bearbeiten
         </a>
 
         <!-- Delete form -->
         <form method="POST" class="form-inline">
             {% csrf_token %}
-            <input type="hidden" name="action" value="delete_ausgabe">
-            <input type="hidden" name="ausgabe_id" value="{{ ausgabe.id }}">
+            <input type="hidden" name="action" value="delete_expense">
+            <input type="hidden" name="ausgabe_id" value="{{ expense.id }}">
             <button type="submit" class="btn btn-danger btn-sm">
                 Löschen
             </button>
@@ -124,36 +124,17 @@
             <tr>
                 <th>Person</th>
                 <th>Insgesamt ausgegeben</th>
-                <th>Differenz zum Pro-Kopf-Soll</th>
-                <th style="text-align: right;">Aktion</th>
             </tr>
         </thead>
         <tbody>
-            {% for p in personen_übersicht %}
+            {% for person_summary in people_summary %}
                 <tr>
-                    <td><strong>{{ p.name }}</strong></td>
-                    <td>{{ p.ausgegeben|floatformat:2 }} €</td>
-                    <td>
-                        {% if p.saldo > 0.01 %}
-                            <span class="saldo-positiv">+{{ p.saldo|floatformat:2 }} € (bekommt Geld)</span>
-                        {% elif p.saldo < -0.01 %}
-                            <span class="saldo-negativ">{{ p.saldo|floatformat:2 }} € (schuldet Geld)</span>
-                        {% else %}
-                            <span>0.00 € (ausgeglichen)</span>
-                        {% endif %}
-                    </td>
-                    <td style="text-align: right;">
-                        <form method="POST" style="display: inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="delete_person">
-                            <input type="hidden" name="person_id" value="{{ p.id }}">
-                            <button type="submit" class="btn btn-danger-outline btn-sm">Entfernen</button>
-                        </form>
-                    </td>
+                    <td><strong>{{ person_summary.name }}</strong></td>
+                    <td>{{ person_summary.spent_amount|floatformat:2 }} €</td>
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="4">Noch keine Personen vorhanden.</td>
+                    <td colspan="2">Noch keine Personen vorhanden.</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -163,11 +144,11 @@
 <!-- ADJUSTMENT: Who pays whom and how much -->
 <div class="card">
     <h2>Wer schuldet wem wie viel?</h2>
-    {% if ausgleich_liste %}
+    {% if settlement_list %}
         <ul class="ausgleich-list">
-            {% for eintrag in ausgleich_liste %}
+            {% for entry in settlement_list %}
                 <li class="ausgleich-item">
-                    <span><strong>{{ eintrag.von }}</strong> schuldet <strong>{{ eintrag.an }}</strong> <strong>{{ eintrag.betrag }}€</strong></span>
+                    <span><strong>{{ entry.von }}</strong> schuldet <strong>{{ entry.an }}</strong> <strong>{{ entry.betrag|floatformat:2 }} €</strong></span>
                 </li>
             {% endfor %}
         </ul>
@@ -177,7 +158,7 @@
 </div>
 
 <div style="margin-bottom: 24px;">
-    <a href="{% url 'themen_liste' %}" class="btn btn-primary btn-lg">
+    <a href="{% url 'topics_list' %}" class="btn btn-primary btn-lg">
         &larr; Zurück zur Übersicht
     </a>
 </div>

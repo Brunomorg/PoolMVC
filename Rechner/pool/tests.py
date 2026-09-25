@@ -1,19 +1,19 @@
 from django.test import TestCase
 from django.urls import reverse
-from .models import Thema
+from .models import Topic, Person, Expense
 
 
-class ThemenListeViewTest(TestCase):
+class TopicListViewTest(TestCase):
 
     def setUp(self):
         """Set up test data that runs before each individual test."""
         # Resolve the URL dynamically by name from urls.py
-        self.url = reverse('themen_liste')
+        self.url = reverse('topics_list')
 
         # Create a test topic in the test database
-        self.thema_1 = Thema.objects.create(titel="Sommerurlaub 2026")
+        self.topic_1 = Topic.objects.create(titel="Sommerurlaub 2026")
 
-    def test_themen_liste_view_get(self):
+    def test_topic_list_view_get(self):
         """Check whether the topic list loads and renders correctly (GET)."""
         response = self.client.get(self.url)
 
@@ -31,7 +31,7 @@ class ThemenListeViewTest(TestCase):
         self.assertIn('form', response.context)
         self.assertEqual(len(response.context['themen']), 1)
 
-    def test_thema_erstellen_success_post(self):
+    def test_topic_creation_success_post(self):
         """Test successful creation of a new topic via POST."""
         post_data = {
             'titel': 'Wohnung renovieren'
@@ -45,10 +45,10 @@ class ThemenListeViewTest(TestCase):
         self.assertRedirects(response, self.url)
 
         # 2. Check that the topic was actually saved in the test database
-        self.assertTrue(Thema.objects.filter(titel='Wohnung renovieren').exists())
-        self.assertEqual(Thema.objects.count(), 2)
+        self.assertTrue(Topic.objects.filter(titel='Wohnung renovieren').exists())
+        self.assertEqual(Topic.objects.count(), 2)
 
-    def test_thema_erstellen_invalid_post(self):
+    def test_topic_creation_invalid_post(self):
         """Test sending invalid form data (e.g., empty field)."""
         post_data = {
             'titel': ''  # Empty string because the title is a required field in the model
@@ -60,9 +60,20 @@ class ThemenListeViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # 2. No new topic should have been created in the database
-        self.assertEqual(Thema.objects.count(), 1)
+        self.assertEqual(Topic.objects.count(), 1)
 
         # 3. The form in the context should contain validation errors
         form = response.context['form']
         self.assertTrue(form.errors)
         self.assertIn('titel', form.errors)
+
+    def test_topic_delete_post(self):
+        """Test deleting an existing topic via POST."""
+        response = self.client.post(self.url, data={
+            'action': 'delete_topic',
+            'topic_id': self.topic_1.id,
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, self.url)
+        self.assertEqual(Topic.objects.count(), 0)

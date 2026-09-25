@@ -1,10 +1,10 @@
 from django import forms
-from .models import Thema, Person, Ausgabe
+from .models import Topic, Person, Expense
 
-# Form to create a new Thema (topic).
-class ThemaForm(forms.ModelForm):
+# Form to create a new topic.
+class TopicForm(forms.ModelForm):
     class Meta:
-        model = Thema
+        model = Topic
         fields = ['titel']
         widgets = {
             'titel': forms.TextInput(attrs={
@@ -13,7 +13,11 @@ class ThemaForm(forms.ModelForm):
             })
         }
 
-# Form to create a new Person associated with a Thema.
+
+ThemaForm = TopicForm
+
+
+# Form to create a new Person associated with a topic.
 class PersonForm(forms.ModelForm):
     class Meta:
         model = Person
@@ -25,10 +29,11 @@ class PersonForm(forms.ModelForm):
             })
         }
 
-# Form to create a new Spending associated with a Thema and Person.
-class AusgabeForm(forms.ModelForm):
+
+# Form to create a new spending associated with a topic and person.
+class ExpenseForm(forms.ModelForm):
     class Meta:
-        model = Ausgabe
+        model = Expense
         fields = ['person', 'betrag', 'beschreibung']
         widgets = {
             'person': forms.Select(attrs={'class': 'form-control'}),
@@ -43,10 +48,13 @@ class AusgabeForm(forms.ModelForm):
             }),
         }
 
-    # Filtering Persons in the form
+    # Filtering persons in the form
     def __init__(self, *args, **kwargs):
-        thema = kwargs.pop('thema', None)
+        topic = kwargs.pop('thema', None)
         super().__init__(*args, **kwargs)
-        if thema:
-            self.fields['person'].queryset = Person.objects.filter(thema=thema)
+        if topic:
+            self.fields['person'].queryset = Person.objects.filter(thema=topic)
             self.fields['person'].empty_label = "-- Person auswählen --"
+
+
+AusgabeForm = ExpenseForm

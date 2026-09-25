@@ -16,7 +16,7 @@
         <h2>Neues Thema anlegen</h2>
         <form method="POST">
             {% csrf_token %}
-            <input type="hidden" name="action" value="add_thema">
+            <input type="hidden" name="action" value="add_topic">
 
             <div class="form-group">
                 <label for="titel">Titel des Themas / Urlaubs</label>
@@ -31,16 +31,16 @@
     <div class="card">
         <h2>Vorhandene Themen</h2>
 
-        {% if themen %}
+        {% if topics %}
             <div class="topic-grid">
-    {% for thema in themen %}
+    {% for topic in topics %}
         <!-- Die gesamte Karte ist nun ein Link -->
-        <a href="{% url 'thema_detail' thema.id %}" class="topic-card-link">
+        <a href="{% url 'topic_detail' topic.id %}" class="topic-card-link">
             <div class="topic-card">
                 <div class="topic-card-content">
-                    <h3 class="topic-title">{{ thema.titel }}</h3>
+                    <h3 class="topic-title">{{ topic.titel }}</h3>
                     <div class="topic-meta">
-                        Erstellt am: {{ thema.erstellt_am|date:"d.m.Y — H:i" }} Uhr
+                        Erstellt am: {{ topic.erstellt_am|date:"d.m.Y — H:i" }} Uhr
                     </div>
                 </div>
 
@@ -53,8 +53,8 @@
                           onclick="event.stopPropagation();"
                           onsubmit="event.stopPropagation();">
                         {% csrf_token %}
-                        <input type="hidden" name="action" value="delete_thema">
-                        <input type="hidden" name="thema_id" value="{{ thema.id }}">
+                        <input type="hidden" name="action" value="delete_topic">
+                        <input type="hidden" name="topic_id" value="{{ topic.id }}">
                         <button type="submit" class="btn btn-danger-outline btn-sm">Löschen</button>
                     </form>
                 </div>
